@@ -15,20 +15,19 @@ api_client = asana.ApiClient(configuration)
 tasks_api = asana.TasksApi(api_client)
 
 def create_task():
-    workspace_id = input("Enter Workspace ID: ").strip()
+    #workspace_id = input("Enter Workspace ID: ").strip()
     project_id = input("Enter Project ID: ").strip()
     name = input("Enter Task Name: ").strip()
-    notes = input("Enter Task Notes: ").strip()
     assignee = input("Enter Assignee: ").strip()
+    body = {
+        'name': str(name),
+        'assignee': str(assignee),
+        'projects': [str(project_id)]
+    }
+    print("DEBUG: Sending body to Asana:", body)
     try:
         result = tasks_api.create_task(
-            body={
-                'workspace': workspace_id,
-                'projects': [project_id],
-                'name': name,
-                'notes': notes,
-                'assignee': assignee,
-            },
+            body=body,
             opts={}
         )
         print("Task created:", result['gid'])
