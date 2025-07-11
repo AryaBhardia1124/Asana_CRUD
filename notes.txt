@@ -1,5 +1,0 @@
-ASANA_TOKEN = os.getenv('ASANA_TOKEN')
-configuration = asana.Configuration()
-configuration.access_token = ASANA_TOKEN
-api_client = asana.ApiClient(configuration)
-tasks_api = asana.TasksApi(api_client)
