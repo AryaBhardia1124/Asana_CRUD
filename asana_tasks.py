@@ -1,6 +1,5 @@
 import os
 import asana
-from asana.rest import ApiException
 
 # Get Asana Personal Access Token from environment variable
 ASANA_TOKEN = os.getenv('ASANA_TOKEN')
@@ -8,11 +7,7 @@ if not ASANA_TOKEN:
     print("Error: Please set your Asana Personal Access Token in the ASANA_TOKEN environment variable.")
     exit(1)
 
-# Configure Asana API client (v5+)
-configuration = asana.Configuration()
-configuration.access_token = ASANA_TOKEN
-api_client = asana.ApiClient(configuration)
-tasks_api = asana.TasksApi(api_client)
+client = asana.Client.access_token(ASANA_TOKEN)
 
 def create_task():
     #workspace_id = input("Enter Workspace ID: ").strip()
@@ -20,29 +15,26 @@ def create_task():
     name = input("Enter Task Name: ").strip()
     assignee = input("Enter Assignee: ").strip()
     body = {
-        'name': str(name),
-        'assignee': str(assignee),
-        'projects': [str(project_id)]
+        'name': name,
+        'assignee': assignee,
+        'projects': [project_id]
     }
     print("DEBUG: Sending body to Asana:", body)
     try:
-        result = tasks_api.create_task(
-            body=body,
-            opts={}
-        )
+        result = client.tasks.create_task(body, opt_pretty=True)
         print("Task created:", result['gid'])
-    except ApiException as e:
-        print(f"Exception when creating task: {e}")
+    except asana.error.AsanaError as e:
+        print("Error creating task:", e)
 
 def read_task():
     task_id = input("Enter Task ID: ")
     try:
-        result = tasks_api.get_task(task_id, opts={})
+        result = client.tasks.get_task(task_id, opts={})
         print("Task details:")
         for k, v in result.items():
             print(f"{k}: {v}")
-    except ApiException as e:
-        print(f"Exception when reading task: {e}")
+    except asana.error.AsanaError as e:
+        print("Error reading task:", e)
 
 def update_task():
     task_id = input("Enter Task ID: ")
@@ -57,18 +49,18 @@ def update_task():
         print("Nothing to update.")
         return
     try:
-        result = tasks_api.update_task(task_id, data, opts={})
+        result = client.tasks.update_task(task_id, data, opts={})
         print("Task updated:", result['gid'])
-    except ApiException as e:
-        print(f"Exception when updating task: {e}")
+    except asana.error.AsanaError as e:
+        print("Error updating task:", e)
 
 def delete_task():
     task_id = input("Enter Task ID: ")
     try:
-        tasks_api.delete_task(task_id)
+        client.tasks.delete_task(task_id)
         print("Task deleted:", task_id)
-    except ApiException as e:
-        print(f"Exception when deleting task: {e}")
+    except asana.error.AsanaError as e:
+        print("Error deleting task:", e)
 
 def main():
     while True:
